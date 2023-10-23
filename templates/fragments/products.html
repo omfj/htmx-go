@@ -1,7 +1,11 @@
-<ul>
+{{if .Products}}
+<ul class="product-list">
   {{range .Products}}
   <li>
     <a href="/products/{{.}}">{{.}}</a>
   </li>
   {{end}}
 </ul>
+{{else}}
+<p>No products found.</p>
+{{end}}

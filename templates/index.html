@@ -1,4 +1,4 @@
-<main class="container">
+<main class="container py-1 px-1">
   <h1 class="title">{{.Title}}</h1>
 
   <p>Welcome to this simple HTMX Go application. This is the index page.</p>
@@ -6,8 +6,9 @@
   <input
     type="text"
     name="q"
+    class="product-search"
     hx-get="/products"
-    hx-trigger="keyup changed delay:500ms"
+    hx-trigger="keyup changed, load delay:500ms"
     hx-target="#search-results"
     placeholder="Search..."
   />

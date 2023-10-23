@@ -40,7 +40,7 @@ func main() {
 		Views: engine,
 	})
 
-	app.Static("/static", "./static")
+	app.Static("/", "./static")
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Render index template
