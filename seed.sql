@@ -1,0 +1,22 @@
+INSERT INTO product (name, price)
+VALUES
+    ('iPhone 15 Pro', 15000),
+    ('AirPods Pro 2.gen', 3000),
+    ('Samsung Galaxy S22 Ultra', 14000),
+    ('Sony WH-1000XM5 Headphones', 500),
+    ('Dell XPS 15 Laptop', 2000),
+    ('LG OLED 4K Smart TV', 3000),
+    ('Logitech MX Master 3 Mouse', 100),
+    ('Apple Watch Series 7', 800),
+    ('Nvidia GeForce RTX 4090', 1500),
+    ('Google Pixel 7', 1100),
+    ('Bose SoundLink Mini II', 200),
+    ('Microsoft Surface Pro 8', 1200),
+    ('Amazon Echo Show 10', 250),
+    ('PlayStation 5', 600),
+    ('Xbox Series X', 600),
+    ('Canon EOS R5 Camera', 3500),
+    ('MacBook Air M2', 1200),
+    ('OnePlus 9 Pro', 800),
+    ('Razer BlackWidow V3 Keyboard', 150),
+    ('Samsung Odyssey G7 Monitor', 700);

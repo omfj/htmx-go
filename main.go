@@ -1,44 +1,39 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"strconv"
 	"strings"
 
+	"github.com/omfj/htmx-go/product"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
+
+	_ "github.com/lib/pq"
 )
 
-var products = []string{
-	"Apple AirPods Pro",
-	"Apple iPhone 11 Pro Max",
-	"Apple iPhone 11",
-	"Apple iPhone XS Max",
-	"Apple iPhone XS",
-	"Apple iPhone XR",
-	"Apple iPhone X",
-	"Apple iPhone 8 Plus",
-	"Apple iPhone 8",
-	"Huawei P30 Pro",
-	"Huawei P30",
-	"Huawei Mate 20 Pro",
-	"Huawei Mate 20",
-	"Huawei P20 Pro",
-	"Huawei P20",
-	"Huawei Mate 10 Pro",
-	"Huawei Mate 10",
-	"LG G8X ThinQ",
-	"LG G8S ThinQ",
-	"LG V50S ThinQ",
-	"LG V50 ThinQ",
-	"LG V40 ThinQ",
-	"LG V35 ThinQ",
-}
-
 func main() {
+	ctx := context.Background()
+
+	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=postgres sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+
+	queries := product.New(db)
+
 	engine := html.New("./templates", ".html")
 
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
+
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
 	app.Static("/", "./static")
 
@@ -52,11 +47,17 @@ func main() {
 	app.Get("/products", func(c *fiber.Ctx) error {
 		search := c.Query("q")
 
-		data := []string{}
+		data := []product.Product{}
+
+		products, err := queries.ListProducts(ctx)
+
+		if err != nil {
+			return err
+		}
 
 		if search != "" {
 			for _, product := range products {
-				if strings.Contains(strings.ToLower(product), strings.ToLower(search)) {
+				if strings.Contains(strings.ToLower(product.Name), strings.ToLower(search)) {
 					data = append(data, product)
 				}
 			}
@@ -67,6 +68,26 @@ func main() {
 		return c.Render("fragments/products", fiber.Map{
 			"Products": data,
 		})
+	})
+
+	app.Get("/products/:id", func(c *fiber.Ctx) error {
+		idQuery := c.Params("id")
+
+		id, err := strconv.Atoi(idQuery)
+
+		if err != nil {
+			return err
+		}
+
+		product, err := queries.GetProduct(ctx, int32(id))
+
+		if err != nil {
+			return err
+		}
+
+		return c.Render("product", fiber.Map{
+			"Product": product,
+		}, "layouts/main")
 	})
 
 	app.Listen(":8080")
