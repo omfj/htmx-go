@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"strconv"
 	"strings"
 
@@ -11,39 +10,44 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/template/html/v2"
+	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
 	ctx := context.Background()
 
-	db, err := sql.Open("postgres", "user=postgres password=postgres dbname=postgres sslmode=disable")
+	cfg, err := CfgFromEnv()
+	if err != nil {
+		panic(err)
+	}
+	db, err := NewDB(cfg)
 	if err != nil {
 		panic(err)
 	}
 
 	queries := product.New(db)
-
 	engine := html.New("./templates", ".html")
-
 	app := fiber.New(fiber.Config{
 		Views: engine,
 	})
 
+	app.Static("/", "./static")
 	app.Use(logger.New(logger.Config{
 		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
 	}))
-
-	app.Static("/", "./static")
-
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Render index template
 		return c.Render("index", fiber.Map{
 			"Title": "Hello, World!",
 		}, "layouts/main")
 	})
-
 	app.Get("/products", func(c *fiber.Ctx) error {
 		search := c.Query("q")
 
@@ -69,7 +73,6 @@ func main() {
 			"Products": data,
 		})
 	})
-
 	app.Get("/products/:id", func(c *fiber.Ctx) error {
 		idQuery := c.Params("id")
 

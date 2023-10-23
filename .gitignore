@@ -1,3 +1,4 @@
 tmp/
 postgres-data/
 .vscode/
+.env
